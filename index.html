@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BIOS ESCAPE</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="icon.svg" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  </head>
+
+  <body>
+    <header>
+      <p>ROM BIOS SCREEN (KEEWAEMAG)</p>
+      <p>SYSTEM MANAGEMENT UTILITY</p>
+      <p>VERSION 0.1 - SOFTWARE PROVIDED AGAINST YOUR WILL</p>
+    </header>
+
+    <main>
+      <section id="stats">
+        <p>CPU TEMP : <span id="temp">30</span> C  <span id="tempChart"></span></p>
+        <p>FAN SPEED : <span id="fanSpeed">0</span> RPM</p>
+        <p>CLOCK SPEED : 1.6 GHz</p>
+        <p>VOLTAGE : 1.2 V</p>
+      </section>
+
+      <nav>
+        <section>
+          <p class="assistant selected">BIOS ASSISTANT &#x0001;</p>
+          <p>STANDARD CMOS SETUP</p>
+          <p>BIOS FEATURES SETUP</p>
+          <p>CHIPSET FEATURES SETUP</p>
+          <p>POWER MANAGEMENT SETUP</p>
+          <p>PNP/PCI CONFIGURATION</p>
+          <p>INTEGRATED PERIPHERALS</p>
+        </section>
+        <section>
+          <p>LOAD SETUP DEFAULTS</p>
+          <p>SUPERVISOR PASSWORD</p>
+          <p>USER PASSWORD</p>
+          <p>IDE HDD AUTO DETECTION</p>
+          <p>SAVE & EXIT SETUP</p>
+          <p>EXIT WITHOUT SAVING</p>
+        </section>
+      </nav>
+
+      <section id="controls">
+        <p>Esc : Quit</p>
+        <p>&#x0018; &#x0019; &#x001A; &#x001B; : Select Item</p>
+        <p>F10 : Save & Exit Setup</p>
+      </section>
+
+      <output>Welcome to the BIOS, please select an option above...</output>
+    </main>
+
+    <dialog id="notAvailable">
+      <p>Sorry, this feature is not available</p>
+
+      <div>[<span>OK</span>]</div>
+    </dialog>
+
+    <div id="chat" class="open">
+      <header>
+        <p>BIOS ASSISTANT &#x0001;</p>
+      </header>
+
+      <div id="messages">
+        <p>Welcome, I'm your digital BIOS assistant. I can help you adjust your BIOS settings. Tell me what you need!</p>
+      </div>
+
+      <textarea rows="1" placeholder="Type a message..."></textarea>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

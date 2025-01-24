@@ -1,0 +1,215 @@
+@font-face {
+  font-family: 'Perfect DOS';
+  src: url('perfect_dos.woff2') format('woff2');
+}
+
+:root {
+  font-family: 'Perfect DOS', monospace;
+  font-size: 20px;
+  color-scheme: dark;
+}
+
+* {
+  all: revert;
+  box-sizing: border-box;
+  user-select: none;
+  outline: none;
+  overscroll-behavior: none;
+}
+
+p {
+  margin: 0;
+}
+
+html {
+  background: darkblue;
+  color: white;
+}
+
+body {
+  margin: 0;
+  padding: 10px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+header {
+  text-align: center;
+
+  p {
+    margin: 5px;
+  }
+}
+
+main {
+  border: 5px double white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  & > section {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 30px;
+
+    p {
+      white-space: pre;
+    }
+  }
+}
+
+#stats {
+  border-bottom: 2px solid white;
+}
+#controls {
+  border-top: 2px solid white;
+  border-bottom: 2px solid white;
+}
+
+#tempChart {
+  letter-spacing: 2px;
+
+  &.low { color: aqua; }
+  &.medium { color: gold; }
+  &.high { color: darkorange; }
+  &.veryHigh { color: orangered; }
+  &.horrible { color: crimson; }
+}
+
+nav {
+  display: flex;
+  flex: 1;
+
+  section {
+    color: gold;
+    flex: 1;
+    padding: 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: start;
+
+    &:last-of-type {
+      border-left: 2px solid white;
+    }
+
+    p:not(.assistant) {
+      color: olive;
+    }
+    p.selected {
+      color: white;
+      background-color: crimson;
+
+      &:not(.assistant) {
+        color: lightgray;
+        background-color: maroon;
+      }
+    }
+  }
+}
+
+output {
+  padding: 40px;
+  text-align: center;
+  color: gold;
+}
+
+dialog {
+  border: 4px double white;
+  background: darkblue;
+  box-shadow: 10px 10px 0 black;
+
+  &::backdrop {
+    background: none;
+  }
+
+  div {
+    text-align: center;
+    margin-top: 20px;
+
+    span {
+      background-color: crimson;
+    }
+  }
+}
+
+#chat {
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  border: 4px double white;
+  background: darkblue;
+  box-shadow: 10px 10px 0 black;
+  width: 500px;
+  height: 700px;
+  max-width: calc(100vw - 100px);
+  max-height: calc(100dvh - 100px);
+  display: none;
+  flex-direction: column;
+
+  &.open {
+    display: flex;
+  }
+
+  header {
+    border-bottom: 2px solid white;
+  }
+
+  #messages {
+    padding: 10px;
+    flex: 1;
+    overflow-y: auto;
+
+    p:not(.you) {
+      position: relative;
+      padding-left: 20px;
+
+      &::before {
+        content: '\0002';
+        position: absolute;
+        left: 0;
+      }
+    }
+
+    p.you {
+      position: relative;
+      text-align: right;
+      margin-top: 20px;
+      color: gold;
+    }
+  }
+
+  textarea {
+    border: 0;
+    background: none;
+    font: inherit;
+    width: 100%;
+    border-top: 2px solid white;
+    padding: 10px;
+    color: gold;
+    resize: none;
+    field-sizing: content;
+  }
+}
+
+@media (max-width: 768px) {
+  main > section {
+    grid-template-columns: 1fr !important;
+  }
+
+  nav {
+    flex-direction: column;
+
+    section {
+      flex: none;
+
+      &:last-of-type {
+        padding-top: 0;
+        border-left: none;
+      }
+    }
+  }
+}
