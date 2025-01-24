@@ -169,6 +169,11 @@ dialog {
     p:not(.you) {
       position: relative;
       padding-left: 20px;
+      margin-block: 20px;
+
+      &:first-of-type {
+        margin-top: 0;
+      }
 
       &::before {
         content: '\0002';
@@ -205,6 +210,9 @@ dialog {
 
 #time {
   margin-top: 10px;
+  color: gold;
+}
+#maxTemp {
   color: gold;
 }
 
