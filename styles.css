@@ -177,7 +177,7 @@ dialog {
     p.you {
       position: relative;
       text-align: right;
-      margin-top: 20px;
+      margin-block: 20px;
       color: gold;
     }
   }
