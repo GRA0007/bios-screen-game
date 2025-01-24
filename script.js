@@ -1,4 +1,4 @@
-const fanPort = Math.floor(Math.random() * 100)
+let fanPort = Math.floor(Math.random() * 100)
 let didAskAboutFans = false
 let knowsFanPort = false
 let isFanEnabled = false
@@ -76,7 +76,7 @@ const setOutput = (text) => {
 const setTemperature = (temperature) => {
   const tempEl = document.querySelector('#temp')
   const tempChartEl = document.querySelector('#tempChart')
-  if (tempEl) tempEl.innerHTML = temperature
+  if (tempEl) tempEl.innerHTML = temperature.toFixed(1).padStart(4, '0')
   if (tempChartEl) {
     const progress = temperature / 100
     tempChartEl.innerHTML = `${'\u2588'.repeat(Math.floor(progress*15))}${'\u2591'.repeat(15-Math.floor(progress*15))}${progress > .7 ? (progress > .85 ? ' !!!' : ' !') : ''}`
@@ -95,15 +95,19 @@ const setTemperature = (temperature) => {
 const setFanSpeed = (speed) => {
   const fanEl = document.querySelector('#fanSpeed')
   if (fanEl) fanEl.innerHTML = speed
-  if (speed > 0) isFanEnabled = true
+  isFanEnabled = speed > 0
 }
 
 const navItems = document.querySelectorAll('nav section p')
 const notAvailableDialog = document.querySelector('#notAvailable')
+const startDialog = document.querySelector('#start')
+const winDialog = document.querySelector('#win')
+const loseDialog = document.querySelector('#fail')
 const chat = document.querySelector('#chat')
 const messages = document.querySelector('#messages')
 const input = document.querySelector('textarea')
 let selectedItem = 0
+let startDate = null
 
 /**
  * Select an item from the nav
@@ -134,48 +138,71 @@ const sendResponse = async (response) => {
 
 // Listen for keyboard events
 document.addEventListener('keydown', (e) => {
-  if (!chat.classList.contains('open')) {
-    if (e.key === 'ArrowUp') {
+  if (startDialog.open) {
+    if (e.key === 'Enter') {
       e.preventDefault()
-      if (selectedItem === 0) return selectItem(navItems.length - 1)
-      return selectItem(selectedItem - 1)
+      start()
     }
-    if (e.key === 'ArrowDown') {
+    return
+  }
+
+  if (winDialog.open || loseDialog.open) {
+    if (e.key === 'Escape') {
       e.preventDefault()
-      if (selectedItem === navItems.length - 1) return selectItem(0)
-      return selectItem(selectedItem + 1)
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault()
-      const newIndex = selectedItem + 7
-      if (newIndex < navItems.length) return selectItem(newIndex)
-    }
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault()
-      const newIndex = selectedItem - 7
-      if (newIndex >= 0) return selectItem(newIndex)
+      e.stopPropagation()
     }
     if (e.key === 'Enter') {
       e.preventDefault()
-      if (notAvailableDialog.open) return notAvailableDialog.close()
+      winDialog.close()
+      loseDialog.close()
+      start()
+    }
+    return
+  }
 
-      if (selectedItem === 0) {
-        chat.classList.add('open')
-        input.focus()
-      } else {
-        notAvailableDialog.showModal()
-      }
-    }
-    if (e.key === 'Escape' || e.key === 'F10') {
-      if (notAvailableDialog.open && e.key === 'Escape') return false
-      e.preventDefault()
-      notAvailableDialog.showModal()
-    }
-  } else {
+  if (chat.classList.contains('open')) {
     if (e.key === 'Escape') {
       e.preventDefault()
       chat.classList.remove('open')
     }
+    return
+  }
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    if (selectedItem === 0) return selectItem(navItems.length - 1)
+    return selectItem(selectedItem - 1)
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    if (selectedItem === navItems.length - 1) return selectItem(0)
+    return selectItem(selectedItem + 1)
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault()
+    const newIndex = selectedItem + 7
+    if (newIndex < navItems.length) return selectItem(newIndex)
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    const newIndex = selectedItem - 7
+    if (newIndex >= 0) return selectItem(newIndex)
+  }
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    if (notAvailableDialog.open) return notAvailableDialog.close()
+
+    if (selectedItem === 0) {
+      chat.classList.add('open')
+      input.focus()
+    } else {
+      notAvailableDialog.showModal()
+    }
+  }
+  if (e.key === 'Escape' || e.key === 'F10') {
+    if (notAvailableDialog.open && e.key === 'Escape') return false
+    e.preventDefault()
+    notAvailableDialog.showModal()
   }
 })
 
@@ -185,6 +212,7 @@ input.addEventListener('keydown', (e) => {
     e.preventDefault()
     e.stopPropagation()
     const userMessage = input.value
+    if (userMessage.trim() === '') return
     const newMessage = document.createElement('p')
     newMessage.classList.add('you')
     newMessage.append(document.createTextNode(userMessage))
@@ -195,4 +223,55 @@ input.addEventListener('keydown', (e) => {
   }
 })
 
-setTemperature(30.3)
+let temperature = 30
+setTemperature(temperature)
+
+// Rapidly decrease the temperature when fans are enabled (win state!)
+const decreaseTemperature = () => {
+  setOutput('Fans enabled.')
+  setTimeout(() => {
+    temperature -= .1
+    setTemperature(temperature)
+    if (temperature <= 30) return win()
+    decreaseTemperature()
+  }, Math.random() * 50 + 30)
+}
+
+// Steadily increase temperature until fans are enabled
+const increaseTemperature = () => {
+  setTimeout(() => {
+    temperature += .1
+    setTemperature(temperature)
+    if (temperature > 80) setOutput('Warning! CPU temperature is dangerously high. Please enable fans.')
+    if (isFanEnabled) return decreaseTemperature()
+    if (temperature > 99) return lose()
+    increaseTemperature()
+  }, Math.random() * 1000 + 100)
+}
+
+const start = () => {
+  startDialog.close()
+  setOutput('Welcome to the BIOS, please select an option above...')
+  setFanSpeed(0)
+  fanPort = Math.floor(Math.random() * 100)
+  didAskAboutFans = false
+  knowsFanPort = false
+  startDate = new Date()
+  temperature = 30
+  setTemperature(temperature)
+  increaseTemperature()
+}
+
+const win = () => {
+  chat.classList.remove('open')
+  const time = new Date().valueOf() - startDate.valueOf()
+  const minutes = Math.floor((time / 1000) / 60)
+  const seconds = Math.round((time - (minutes * 60 * 1000)) / 1000)
+  document.querySelector('#time').innerHTML = `Time took: ${minutes}m ${seconds}s`
+  winDialog.showModal()
+}
+
+const lose = () => {
+  chat.classList.remove('open')
+  loseDialog.showModal()
+}

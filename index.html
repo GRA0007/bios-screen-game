@@ -57,7 +57,26 @@
       <div>[<span>OK</span>]</div>
     </dialog>
 
-    <div id="chat" class="open">
+    <dialog id="start" open>
+      <p>Welcome! Your CPU temperature seems to be increasing. Your job is to save your machine before it gets too high! Press Enter to begin.</p>
+
+      <div>[<span>START</span>]</div>
+    </dialog>
+
+    <dialog id="win">
+      <p>Congratulations! You successfully turned on the fans and saved your ancient machine.</p>
+      <p id="time"></p>
+
+      <div>[<span>PLAY AGAIN?</span>]</div>
+    </dialog>
+
+    <dialog id="fail">
+      <p>:( Your machine has started to melt and you've lost all your files, but more importantly you've killed your friendly BIOS assistant. You did not succeed in cooling your CPU in time.</p>
+
+      <div>[<span>PLAY AGAIN?</span>]</div>
+    </dialog>
+
+    <div id="chat">
       <header>
         <p>BIOS ASSISTANT &#x0001;</p>
       </header>

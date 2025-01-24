@@ -99,15 +99,16 @@ nav {
     p:not(.assistant) {
       color: olive;
     }
-    p.selected {
-      color: white;
-      background-color: crimson;
+  }
+}
 
-      &:not(.assistant) {
-        color: lightgray;
-        background-color: maroon;
-      }
-    }
+body:not(:has(#chat.open)) nav section p.selected {
+  color: white;
+  background-color: crimson;
+
+  &:not(.assistant) {
+    color: lightgray;
+    background-color: maroon;
   }
 }
 
@@ -121,6 +122,8 @@ dialog {
   border: 4px double white;
   background: darkblue;
   box-shadow: 10px 10px 0 black;
+  max-width: 600px;
+  z-index: 10;
 
   &::backdrop {
     background: none;
@@ -193,6 +196,16 @@ dialog {
     resize: none;
     field-sizing: content;
   }
+}
+
+#start {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#time {
+  margin-top: 10px;
+  color: gold;
 }
 
 @media (max-width: 768px) {
