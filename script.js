@@ -293,3 +293,5 @@ const lose = () => {
   loseDialog.showModal()
   dialogAudio.play()
 }
+
+console.log('BIOS SCREEN: Provided for your convenience\n\nCreated by Benji Grant and Ben Koder for the Game A Week game jam 2025\nWeek 1, theme "one screen"')
