@@ -10,6 +10,7 @@ let isFanEnabled = false
 const getResponse = (message) => {
   const m = message.toLocaleLowerCase()
 
+  // Main story
   if (m.includes('fan') && (m.includes('on') || m.includes('enable') || m.includes('activ'))) {
     if (didAskAboutFans) return 'Just tell me which fan you\'d like to enable and I\'ll gladly assist you!'
     didAskAboutFans = true
@@ -43,6 +44,7 @@ const getResponse = (message) => {
   if (m.includes('ai')) return 'My artificial intelligence is finely tuned to help you reach your goal as quickly as possible!'
   if (m.includes('joke')) return 'As your BIOS assistant, I am incapable of telling jokes. Haha \u000E'
 
+  // Basic responses
   if (m.includes('who') && m.includes('you')) return 'I\'m your BIOS assistant of course! Tell me how I can help \u0003'
   if (m.includes('hi') || m.includes('hello') || m.includes('hey')) return 'Hello! Please let me know how I can assist you, I want to provide the best experience possible.'
   if (m.includes('how') && m.includes('are')) return 'How am I? Why, no one has ever asked me that before! I will be great, once I help you out!'
@@ -51,13 +53,14 @@ const getResponse = (message) => {
   if (m.includes('why')) return 'Why not?'
   if (m.includes('what')) return 'What can I help you with today? I always do my best to help.'
 
-  const otherResponses = [
+  // Fallback
+  const fallbackResponses = [
     'Sorry, I\'m not sure that was in English, otherwise I definitely would have understood your request.',
     'I might know how to help with that, but it\'s getting a little hot in here and I\'m having trouble concentrating. Could you please enable the fans?',
     'I can help with anything you need! Even that, however you wrote it so badly I can\'t tell what you want at all.',
     'Maybe if you actually forked out the money for a GPU I\'d be able to understand what you\'re trying to say. Can you put it in simpler terms please?',
   ]
-  return otherResponses[Math.floor(Math.random() * otherResponses.length)]
+  return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
 }
 
 /**
@@ -98,6 +101,10 @@ const setFanSpeed = (speed) => {
   isFanEnabled = speed > 0
 }
 
+const dialogAudio = new Audio('dialog.wav')
+const selectAudio = new Audio('select.wav')
+dialogAudio.volume = .2
+selectAudio.volume = .2
 const navItems = document.querySelectorAll('nav section p')
 const notAvailableDialog = document.querySelector('#notAvailable')
 const startDialog = document.querySelector('#start')
@@ -141,6 +148,7 @@ document.addEventListener('keydown', (e) => {
   if (startDialog.open) {
     if (e.key === 'Enter') {
       e.preventDefault()
+      selectAudio.play()
       start()
     }
     return
@@ -155,6 +163,7 @@ document.addEventListener('keydown', (e) => {
       e.preventDefault()
       winDialog.close()
       loseDialog.close()
+      selectAudio.play()
       start()
     }
     return
@@ -164,6 +173,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       e.preventDefault()
       chat.classList.remove('open')
+      selectAudio.play()
     }
     return
   }
@@ -190,8 +200,12 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.key === 'Enter') {
     e.preventDefault()
-    if (notAvailableDialog.open) return notAvailableDialog.close()
+    if (notAvailableDialog.open) {
+      selectAudio.play()
+      return notAvailableDialog.close()
+    }
 
+    dialogAudio.play()
     if (selectedItem === 0) {
       chat.classList.add('open')
       input.focus()
@@ -202,6 +216,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'F10') {
     if (notAvailableDialog.open && e.key === 'Escape') return false
     e.preventDefault()
+    dialogAudio.play()
     notAvailableDialog.showModal()
   }
 })
@@ -218,6 +233,7 @@ input.addEventListener('keydown', (e) => {
     newMessage.append(document.createTextNode(userMessage))
     messages.append(newMessage)
     input.value = ''
+    selectAudio.play()
 
     sendResponse(getResponse(userMessage))
   }
@@ -269,9 +285,11 @@ const win = () => {
   const seconds = Math.round((time - (minutes * 60 * 1000)) / 1000)
   document.querySelector('#time').innerHTML = `Time took: ${minutes}m ${seconds}s`
   winDialog.showModal()
+  dialogAudio.play()
 }
 
 const lose = () => {
   chat.classList.remove('open')
   loseDialog.showModal()
+  dialogAudio.play()
 }
