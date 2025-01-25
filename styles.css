@@ -29,7 +29,7 @@ html {
 body {
   margin: 0;
   padding: 10px;
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -48,6 +48,7 @@ main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 
   & > section {
     padding: 15px;
@@ -82,6 +83,7 @@ main {
 nav {
   display: flex;
   flex: 1;
+  overflow-y: hidden;
 
   section {
     color: gold;
@@ -163,6 +165,7 @@ dialog {
 
   header {
     border-bottom: 2px solid white;
+    position: relative;
   }
 
   #messages {
@@ -205,6 +208,29 @@ dialog {
     resize: none;
     field-sizing: content;
   }
+
+  button {
+    font: inherit;
+    margin: 0;
+    padding: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: darkblue;
+    height: 1.3rem;
+    width: 1.3rem;
+    position: absolute;
+    top: .1rem;
+    right: .1rem;
+    border: 0;
+  }
+}
+
+@media (pointer: coarse) {
+  #chat button {
+    display: flex;
+  }
 }
 
 #time {
@@ -230,5 +256,23 @@ dialog {
         border-left: none;
       }
     }
+  }
+}
+
+@media (max-width: 500px) {
+  :root {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 350px) {
+  #tempChart {
+    font-size: 9px;
+  }
+  #chat {
+    bottom: 20px;
+    right: 20px;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100dvh - 40px);
   }
 }

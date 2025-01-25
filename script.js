@@ -183,16 +183,20 @@ const sendResponse = async (response) => {
   input.focus()
 }
 
-// Listen for keyboard events
-document.addEventListener('keydown', (e) => {
+/**
+ * Handle inputs
+ * @param {string} input
+ * @param {Event | undefined} e
+ */
+const handleInput = (input, e) => {
   // Start dialog
   if (startDialog.open) {
-    if (e.key === 'Escape') {
-      e.preventDefault()
-      e.stopPropagation()
+    if (input === 'Escape') {
+      e?.preventDefault()
+      e?.stopPropagation()
     }
-    if (e.key === 'Enter') {
-      e.preventDefault()
+    if (input === 'Enter') {
+      e?.preventDefault()
       selectAudio.play()
       startDialog.close()
       increaseTemperature()
@@ -202,12 +206,12 @@ document.addEventListener('keydown', (e) => {
 
   // Win/lose dialogs
   if (winDialog.open || loseDialog.open) {
-    if (e.key === 'Escape') {
-      e.preventDefault()
-      e.stopPropagation()
+    if (input === 'Escape') {
+      e?.preventDefault()
+      e?.stopPropagation()
     }
-    if (e.key === 'Enter') {
-      e.preventDefault()
+    if (input === 'Enter') {
+      e?.preventDefault()
       winDialog.close()
       loseDialog.close()
       selectAudio.play()
@@ -218,8 +222,8 @@ document.addEventListener('keydown', (e) => {
 
   // Chat window
   if (chat.classList.contains('open')) {
-    if (e.key === 'Escape') {
-      e.preventDefault()
+    if (input === 'Escape') {
+      e?.preventDefault()
       chat.classList.remove('open')
       selectAudio.play()
     }
@@ -228,8 +232,8 @@ document.addEventListener('keydown', (e) => {
 
   // Not available dialog
   if (notAvailableDialog.open) {
-    if (e.key === 'Enter') {
-      e.preventDefault()
+    if (input === 'Enter') {
+      e?.preventDefault()
       selectAudio.play()
       notAvailableDialog.close()
     }
@@ -237,28 +241,28 @@ document.addEventListener('keydown', (e) => {
   }
 
   // Main menu
-  if (e.key === 'ArrowUp') {
-    e.preventDefault()
+  if (input === 'ArrowUp') {
+    e?.preventDefault()
     if (selectedItem === 0) return selectItem(navItems.length - 1)
     return selectItem(selectedItem - 1)
   }
-  if (e.key === 'ArrowDown') {
-    e.preventDefault()
+  if (input === 'ArrowDown') {
+    e?.preventDefault()
     if (selectedItem === navItems.length - 1) return selectItem(0)
     return selectItem(selectedItem + 1)
   }
-  if (e.key === 'ArrowRight') {
-    e.preventDefault()
+  if (input === 'ArrowRight') {
+    e?.preventDefault()
     const newIndex = selectedItem + 7
     if (newIndex < navItems.length) return selectItem(newIndex)
   }
-  if (e.key === 'ArrowLeft') {
-    e.preventDefault()
+  if (input === 'ArrowLeft') {
+    e?.preventDefault()
     const newIndex = selectedItem - 7
     if (newIndex >= 0) return selectItem(newIndex)
   }
-  if (e.key === 'Enter') {
-    e.preventDefault()
+  if (input === 'Enter') {
+    e?.preventDefault()
     dialogAudio.play()
     if (selectedItem === 0) {
       chat.classList.add('open')
@@ -268,11 +272,39 @@ document.addEventListener('keydown', (e) => {
       notAvailableDialog.showModal()
     }
   }
-  if (e.key === 'Escape' || e.key === 'F10') {
-    e.preventDefault()
+  if (input === 'Escape' || input === 'F10') {
+    e?.preventDefault()
     dialogAudio.play()
     notAvailableDialog.showModal()
   }
+}
+
+// Listen for keyboard events
+document.addEventListener('keydown', (e) => {
+  handleInput(e.key, e)
+})
+
+// Listen for touch events
+let touchStart
+document.addEventListener('touchstart', (e) => {
+  touchStart = { x: e.changedTouches[0].screenX, y: e.changedTouches[0].screenY }
+})
+document.addEventListener('touchend', (e) => {
+  let touchEnd = { x: e.changedTouches[0].screenX, y: e.changedTouches[0].screenY }
+
+  if (Math.abs(touchEnd.x - touchStart.x) < 50) {
+    if (Math.abs(touchEnd.y - touchStart.y) < 50) return handleInput('Enter')
+    if (touchEnd.y < touchStart.y) return handleInput('ArrowUp')
+    if (touchEnd.y > touchStart.y) return handleInput('ArrowDown')
+  } else if (Math.abs(touchEnd.y - touchStart.y) < 50) {
+    if (touchEnd.x < touchStart.x) return handleInput('ArrowLeft')
+    if (touchEnd.x > touchStart.x) return handleInput('ArrowRight')
+  }
+})
+
+// Close button for mobile
+document.querySelector('#chat button').addEventListener('click', () => {
+  handleInput('Escape')
 })
 
 // Capture events on the input
