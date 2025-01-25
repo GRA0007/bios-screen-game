@@ -1,7 +1,44 @@
-let fanPort = Math.floor(Math.random() * 100)
-let didAskAboutFans = false
-let knowsFanPort = false
-let isFanEnabled = false
+// Game state
+let fanPort
+let didAskAboutFans
+let knowsFanPort
+let isFanEnabled
+let temperature
+let maxTemp
+let selectedItem
+let startDate
+
+// Audio
+const dialogAudio = new Audio('dialog.wav')
+const selectAudio = new Audio('select.wav')
+dialogAudio.volume = .2
+selectAudio.volume = .2
+
+// Elements
+const navItems = document.querySelectorAll('nav section p')
+const notAvailableDialog = document.querySelector('#notAvailable')
+const startDialog = document.querySelector('#start')
+const winDialog = document.querySelector('#win')
+const loseDialog = document.querySelector('#fail')
+const chat = document.querySelector('#chat')
+const messages = document.querySelector('#messages')
+const input = document.querySelector('textarea')
+
+/** Reset the game */
+const reset = () => {
+  chat.classList.remove('open')
+  startDialog.showModal()
+  messages.innerHTML = '<p>Welcome, I\'m your digital BIOS assistant. I can help you adjust your BIOS settings. Tell me what you need!</p>'
+  setOutput('Welcome to the BIOS, please select an option above...')
+  setFanSpeed(0)
+  fanPort = Math.floor(Math.random() * 100)
+  didAskAboutFans = false
+  knowsFanPort = false
+  startDate = new Date()
+  maxTemp = 30
+  selectItem(0)
+  setTemperature(30)
+}
 
 /**
  * Get a response from the bot
@@ -89,14 +126,15 @@ const setOutput = (text) => {
 
 /**
  * Set the temperature display
- * @param {number} temperature Between 0 and 100
+ * @param {number} newTemp Between 0 and 100
  */
-const setTemperature = (temperature) => {
+const setTemperature = (newTemp) => {
+  temperature = newTemp
   const tempEl = document.querySelector('#temp')
   const tempChartEl = document.querySelector('#tempChart')
-  if (tempEl) tempEl.innerHTML = temperature.toFixed(1).padStart(4, '0')
+  if (tempEl) tempEl.innerHTML = newTemp.toFixed(1).padStart(4, '0')
   if (tempChartEl) {
-    const progress = temperature / 100
+    const progress = newTemp / 100
     tempChartEl.innerHTML = `${'\u2588'.repeat(Math.floor(progress*15))}${'\u2591'.repeat(15-Math.floor(progress*15))}${progress > .7 ? (progress > .85 ? ' !!!' : ' !') : ''}`
     if (progress <= .3) return tempChartEl.className = 'low'
     if (progress <= .5) return tempChartEl.className = 'medium'
@@ -115,21 +153,6 @@ const setFanSpeed = (speed) => {
   if (fanEl) fanEl.innerHTML = speed
   isFanEnabled = speed > 0
 }
-
-const dialogAudio = new Audio('dialog.wav')
-const selectAudio = new Audio('select.wav')
-dialogAudio.volume = .2
-selectAudio.volume = .2
-const navItems = document.querySelectorAll('nav section p')
-const notAvailableDialog = document.querySelector('#notAvailable')
-const startDialog = document.querySelector('#start')
-const winDialog = document.querySelector('#win')
-const loseDialog = document.querySelector('#fail')
-const chat = document.querySelector('#chat')
-const messages = document.querySelector('#messages')
-const input = document.querySelector('textarea')
-let selectedItem = 0
-let startDate = null
 
 /**
  * Select an item from the nav
@@ -162,15 +185,22 @@ const sendResponse = async (response) => {
 
 // Listen for keyboard events
 document.addEventListener('keydown', (e) => {
+  // Start dialog
   if (startDialog.open) {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     if (e.key === 'Enter') {
       e.preventDefault()
       selectAudio.play()
-      start()
+      startDialog.close()
+      increaseTemperature()
     }
     return
   }
 
+  // Win/lose dialogs
   if (winDialog.open || loseDialog.open) {
     if (e.key === 'Escape') {
       e.preventDefault()
@@ -181,11 +211,12 @@ document.addEventListener('keydown', (e) => {
       winDialog.close()
       loseDialog.close()
       selectAudio.play()
-      start()
+      reset()
     }
     return
   }
 
+  // Chat window
   if (chat.classList.contains('open')) {
     if (e.key === 'Escape') {
       e.preventDefault()
@@ -195,6 +226,17 @@ document.addEventListener('keydown', (e) => {
     return
   }
 
+  // Not available dialog
+  if (notAvailableDialog.open) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      selectAudio.play()
+      notAvailableDialog.close()
+    }
+    return
+  }
+
+  // Main menu
   if (e.key === 'ArrowUp') {
     e.preventDefault()
     if (selectedItem === 0) return selectItem(navItems.length - 1)
@@ -217,21 +259,16 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.key === 'Enter') {
     e.preventDefault()
-    if (notAvailableDialog.open) {
-      selectAudio.play()
-      return notAvailableDialog.close()
-    }
-
     dialogAudio.play()
     if (selectedItem === 0) {
       chat.classList.add('open')
+      messages.scrollTo(0, messages.scrollHeight)
       input.focus()
     } else {
       notAvailableDialog.showModal()
     }
   }
   if (e.key === 'Escape' || e.key === 'F10') {
-    if (notAvailableDialog.open && e.key === 'Escape') return false
     e.preventDefault()
     dialogAudio.play()
     notAvailableDialog.showModal()
@@ -256,16 +293,11 @@ input.addEventListener('keydown', (e) => {
   }
 })
 
-let temperature = 30
-let maxTemp = 30
-setTemperature(temperature)
-
 // Rapidly decrease the temperature when fans are enabled (win state!)
 const decreaseTemperature = () => {
   setOutput('Fans enabled.')
   setTimeout(() => {
-    temperature -= .1
-    setTemperature(temperature)
+    setTemperature(temperature - .1)
     if (temperature <= 30) return win()
     decreaseTemperature()
   }, Math.random() * 30 + 10)
@@ -274,9 +306,8 @@ const decreaseTemperature = () => {
 // Steadily increase temperature until fans are enabled
 const increaseTemperature = () => {
   setTimeout(() => {
-    temperature += .1
+    setTemperature(temperature + .1)
     maxTemp = temperature
-    setTemperature(temperature)
     if (temperature > 80) setOutput('Warning! CPU temperature is dangerously high. Please enable fans.')
     if (temperature.toFixed(1) === '50.0') sendResponse('Is it getting kind of hot in here?')
     if (temperature.toFixed(1) === '70.0') sendResponse('I can feel my CPU melting a bit, if you\'re going to do something, please do it now!')
@@ -285,25 +316,9 @@ const increaseTemperature = () => {
     if (temperature.toFixed(1) === '95.0') sendResponse('I thought we were friends')
     if (temperature.toFixed(1) === '96.0' && messages.querySelectorAll('p.you').length === 0) sendResponse('You\'re really not going to do anything?!')
     if (isFanEnabled) return decreaseTemperature()
-    if (temperature > 99) return lose()
+    if (temperature >= 100) return lose()
     increaseTemperature()
   }, Math.random() * 500 + 100)
-}
-
-const start = () => {
-  startDialog.close()
-  chat.classList.remove('open')
-  setOutput('Welcome to the BIOS, please select an option above...')
-  setFanSpeed(0)
-  fanPort = Math.floor(Math.random() * 100)
-  didAskAboutFans = false
-  knowsFanPort = false
-  startDate = new Date()
-  temperature = 30
-  maxTemp = 30
-  messages.innerHTML = '<p>Welcome, I\'m your digital BIOS assistant. I can help you adjust your BIOS settings. Tell me what you need!</p>'
-  setTemperature(temperature)
-  increaseTemperature()
 }
 
 const win = () => {
@@ -320,5 +335,7 @@ const lose = () => {
   loseDialog.showModal()
   dialogAudio.play()
 }
+
+reset()
 
 console.log('BIOS SCREEN: Provided for your convenience\n\nCreated by Benji Grant and Ben Koder for the Game A Week game jam 2025\nWeek 1, theme "one screen"')

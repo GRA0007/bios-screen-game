@@ -129,6 +129,10 @@ dialog {
     background: none;
   }
 
+  &:has(p:nth-of-type(2)) p:first-of-type {
+    margin-bottom: 10px;
+  }
+
   div {
     text-align: center;
     margin-top: 20px;
@@ -203,13 +207,7 @@ dialog {
   }
 }
 
-#start {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
 #time {
-  margin-top: 10px;
   color: gold;
 }
 #maxTemp {
