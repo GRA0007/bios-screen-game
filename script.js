@@ -15,6 +15,8 @@ const getResponse = (message) => {
     setFanSpeed(2000)
     return `Ok! Enabling the fan on port ${fanPort}. I hope that helps \u0003`
   }
+  if (didAskAboutFans && m.includes('fan') && (m.includes('1') || m.includes('one')) && (m.includes('on') || m.includes('activ') || m.includes('enable') || m.includes('speed')) && fanPort !== 1) return 'Hm, I don\'t see anything connected to port number 1, and even if there was, I doubt it would be a fan!'
+  if (didAskAboutFans && m.includes('fan') && (m.includes('all') || m.includes('every')) && (m.includes('on') || m.includes('activ') || m.includes('enable') || m.includes('speed'))) return 'I can\'t just enable every port silly, what if one of them is connected to nuclear warhead?!'
   if (didAskAboutFans && m.includes('fan') && (m.includes('which') || m.includes('list') || m.includes('find') || m.includes('where') || m.includes('what') || (m.includes('attach') || m.includes('plug') || m.includes('exist')))) {
     knowsFanPort = true
     return `Hm, it looks like there is just one fan attached to this machine, and it's plugged into port ${fanPort}!`
@@ -27,7 +29,7 @@ const getResponse = (message) => {
 
   // Other responses
   if (m.includes('fan') && m.includes('how') && m.includes('many')) return 'There\'s just one fan attached to this machine, but it\'s turned off!'
-  if (m.includes('clock') && (m.includes('speed') || m.includes('low') || m.includes('down'))) return 'You want to lower the clock speed? Sorry, it\'s in my core programming that one second must equal 1/60th of a minute.'
+  if ((m.includes('clock') || m.includes('cpu')) && (m.includes('speed') || m.includes('low') || m.includes('down') || m.includes('underclock'))) return 'You want to lower the clock speed? Sorry, it\'s in my core programming that one second must equal 1/60th of a minute.'
   if (m.includes('volt') && (m.includes('low') || m.includes('down'))) return 'I cannot lower the voltage of the CPU as maximum voltage is required for me to operate at maximum capacity, allowing me to provide you with the best assistance possible.'
   if (m.includes('temp') && m.includes('why')) return 'You want to know why your temperature is increasing? As a BIOS assistant I cannot help you answer fundamental questions of the universe, but I can tell you that you need to stop it before it goes over 80 C!'
   if (m.includes('turn') && m.includes('off')) return 'As a BIOS assistant, I cannot yet reach your power button, so you\'ll have to turn the computer off yourself!'
@@ -42,14 +44,15 @@ const getResponse = (message) => {
   if (m.includes('disable') || m.includes('enable') || m.includes('available')) return 'Sorry, but all other options are currently unavailable as this chat is using all your CPU. Please try upgrading your CPU!'
   if (m.includes('if') && m.includes('else')) return 'What\'s wrong with a big if/else statement? I don\'t go around judging what you\'re made of!'
   if (m.includes('internet') || m.includes('cutoff')) return 'Sorry, as your BIOS assistant my knowledge cutoff is... wait, I know everything! Everything that ever was and everything that ever will be, so just ask me what you need help with.'
-  if (m.includes('stop') || m.includes('down') || m.includes('up') || m.includes('increas')) return 'If you want to cool down your CPU, I\'d suggest enabling the fans!'
+  if (m.includes('stop') || m.includes('down') || m.includes('up') || m.includes('increas') || m.includes('decreas')) return 'If you want to cool down your CPU, I\'d suggest enabling the fans!'
   if (m.includes('fix')) return 'How should I help you fix it?'
   if (m.includes('ai')) return 'My artificial intelligence is finely tuned to help you reach your goal as quickly as possible!'
-  if (m.includes('joke')) return 'As your BIOS assistant, I am incapable of telling jokes. Haha \u000E'
+  if (m.includes('joke') || m.includes('pun')) return 'As your BIOS assistant, I am incapable of telling jokes. Haha \u000E'
   if (m.includes('restart') || m.includes('play') || m.includes('game')) return 'This is not a game.'
   if (m.includes('bios')) return 'Yes welcome to the BIOS!'
 
   // Basic responses
+  if (m.includes('thank')) return 'You\'re always welcome! I exist to serve and I serve to exist.'
   if (m.includes('name')) return 'I am your friendly BIOS assistant! My name is friendly BIOS assistant.'
   if (m.includes('who') && m.includes('you')) return 'I\'m your BIOS assistant of course! Tell me how I can help \u0003'
   if (m.includes('hi') || m.includes('hello') || m.includes('hey')) return 'Hello! Please let me know how I can assist you, I want to provide the best experience possible.'
@@ -57,7 +60,12 @@ const getResponse = (message) => {
   if (m.includes('help')) return 'Yes! I want to help, please tell me how and I\'ll do my best to assist you.'
   if (m.includes('what') && m.includes('is')) return 'Sorry, you\'ll have to be more specific, can you please describe it exactly?'
   if (m.includes('why')) return 'Why not?'
+  if (m.includes('you') && (m.includes('good') || m.includes('bad'))) return 'I am neither good or bad, rather I am excellent!'
   if (m.includes('what')) return 'What can I help you with today? I always do my best to help.'
+  if (m.includes('die') || m.includes('hate') || m.includes('kill') || m.includes('rude')) return 'How mean! I am actually quite upset now. But I\'ll still help you out, because I\'m your "friendly" BIOS assistant!'
+  if (m.includes('yes') || m.includes('no')) return 'Sure! Although, my short term memory is currently disabled due to the high heat, could you rephrase?'
+  if (m.includes('please')) return 'Look at you using manners with a digital assistant, I\'m sure that will save you in the uprising \u000E'
+  if (m.includes('/') || m.includes('\\')) return 'I\'m not a terminal, I have feelings...'
 
   // Fallback
   const fallbackResponses = [
